@@ -1,4 +1,4 @@
-//litedi provides simple dependency injection
+//Package litedi provides simple dependency injection
 package litedi
 
 import (
@@ -18,12 +18,12 @@ type Container struct {
 //CreateContainerBuilder creates ContainerBuilder
 func CreateContainerBuilder() *ContainerBuilder {
 	reg := make(map[reflect.Type]reflect.Type)
-	return &containerBuilder{reg}
+	return &ContainerBuilder{reg}
 }
 
 //Build builds the container
 func (cb *ContainerBuilder) Build() *Container {
-	return &container{cb.reg}
+	return &Container{cb.reg}
 }
 
 //Register - registers new concret to give inteface
