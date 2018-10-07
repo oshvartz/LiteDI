@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"testing"
 
-	"github.com/oshvartz/LiteDI"
+	"github.com/oshvartz/litedi"
 )
 
 func TestErrorOnNonPointerInject(t *testing.T) {
