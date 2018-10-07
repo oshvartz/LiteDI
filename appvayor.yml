@@ -1,34 +1,39 @@
+# version format
 version: "{build}"
 
-# Source Config
+# Operating system (build VM template)
+os: Windows Server 2012 R2
 
 clone_folder: c:\gopath\src\github.com\oshvartz\litedi
 
-# Build host
-
+# environment variables
 environment:
   GOPATH: c:\gopath
-  DEPTESTBYPASS501: 1
-  GOVERSION: 1.9
+  GO15VENDOREXPERIMENT: 1
 
-init:
-  - git config --global core.autocrlf input
-
-# Build
-
+# scripts that run after cloning repository
 install:
-  # Install the specific Go version.
-  - rmdir c:\go /s /q
-  - appveyor DownloadFile https://storage.googleapis.com/golang/go%GOVERSION%.windows-amd64.msi
-  - msiexec /i go%GOVERSION%.windows-amd64.msi /q
-  - choco install bzr
-  - set Path=c:\go\bin;c:\gopath\bin;C:\Program Files (x86)\Bazaar\;C:\Program Files\Mercurial\%Path%
+  - set PATH=%GOPATH%\bin;c:\go\bin;%PATH%
   - go version
   - go env
+  - go get -u github.com/golang/lint/golint
+  - go get -u github.com/remyoudompheng/go-misc/deadcode
+  - go get -u github.com/gordonklaus/ineffassign
+  - go get -u golang.org/x/crypto/argon2
+  - go get -t ./...
 
-build: false
-deploy: false
+# to run your custom scripts instead of automatic MSBuild
+build_script:
+  - go vet ./...
+  - gofmt -s -l .
+  - golint -set_exit_status github.com/oshvartz/litedi...
+  - deadcode
+  - ineffassign .
+  - go test -short -v
+  - go test -short -race -v
 
-test_script:
-  - go build github.com/github.com/oshvartz/litedi
-  - for /f "" %%G in ('go list github.com/oshvartz/litedi/...') do ( go test %%G & IF ERRORLEVEL == 1 EXIT 1)
+# to disable automatic tests
+test: off
+
+# to disable deployment
+deploy: off
