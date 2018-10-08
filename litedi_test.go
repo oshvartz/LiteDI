@@ -12,8 +12,10 @@ func TestErrorOnNonPointerInject(t *testing.T) {
 	var i SomeInterface
 	var i2 SomeInterface2
 	var i3 SomeInterface3
-	var c = cb.Register(&i, SomeConcrete{}).Register(&i2, SomeConcrete2{}).Register(&i3, SomeConcrete3{}).Build()
-
+	cb.Register(&i, SomeConcrete{})
+	cb.Register(&i2, SomeConcrete2{})
+	cb.Register(&i3, SomeConcrete3{})
+	var c = cb.Build()
 	c.Resolve(&i)
 	i.Foo()
 
