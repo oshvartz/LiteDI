@@ -14,7 +14,7 @@ func TestErrorOnNonPointerInject(t *testing.T) {
 	var i3 SomeInterface3
 	cb.Register(&i, SomeConcrete{})
 	cb.Register(&i2, SomeConcrete2{})
-	cb.Register(&i3, SomeConcrete3{})
+	cb.Register(&i3, SomeConcrete3{}, litedi.Singleton)
 	var c = cb.Build()
 	c.Resolve(&i)
 	i.Foo()
