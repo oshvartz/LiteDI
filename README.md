@@ -1,6 +1,8 @@
 # LiteDI
 Lightweight GO Dependency Injection Framework
 
+[![Build status](https://ci.appveyor.com/api/projects/status/h59tvux2x63pk2eu?svg=true)](https://ci.appveyor.com/project/oshvartz/litedi)
+
 # Example
 ```go
 type SomeInterface interface {
