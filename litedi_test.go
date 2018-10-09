@@ -8,7 +8,8 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestErrorOnNonPointerInject(t *testing.T) {
+//just test
+func TestGneralCase(t *testing.T) {
 	cb := litedi.CreateContainerBuilder()
 	var i SomeInterface
 	var i2 SomeInterface2
@@ -16,10 +17,7 @@ func TestErrorOnNonPointerInject(t *testing.T) {
 	var i4 SomeInterface3
 	v := 1
 	sc3 := SomeConcrete3{v}
-	cb.Register(&i, SomeConcrete{})
-	cb.Register(&i2, SomeConcrete2{})
-	cb.Register(&i3, sc3, litedi.Singleton)
-	var c = cb.Build()
+	var c = cb.Register(&i, SomeConcrete{}).Register(&i2, SomeConcrete2{}, litedi.Trasient).Register(&i3, sc3, litedi.Singleton).Build()
 	c.Resolve(&i)
 	i.Foo()
 
