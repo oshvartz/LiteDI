@@ -2,7 +2,6 @@
 package litedi
 
 import (
-	"errors"
 	"reflect"
 )
 
@@ -45,18 +44,18 @@ func (cb *ContainerBuilder) Build() *Container {
 }
 
 //Register - registers new concret to give inteface
-func (cb *ContainerBuilder) Register(from, to interface{}, lifetimeArgs ...Lifetime) (*ContainerBuilder, error) {
+func (cb *ContainerBuilder) Register(from, to interface{}, lifetimeArgs ...Lifetime) *ContainerBuilder {
 	lifetime := Trasient
 	if len(lifetimeArgs) == 1 {
 		lifetime = lifetimeArgs[0]
 	}
 
 	if lifetime != Trasient && lifetime != Singleton {
-		return nil, errors.New("lifetime not supported")
+		panic("lifetime not supported")
 	}
 
 	cb.reg[reflect.TypeOf(from).Elem()] = regTraget{reflect.TypeOf(to), lifetime}
-	return cb, nil
+	return cb
 }
 
 func (c *Container) createInstace(instaceType reflect.Type) (reflect.Value, reflect.Type) {
@@ -69,6 +68,7 @@ func (c *Container) createInstace(instaceType reflect.Type) (reflect.Value, refl
 
 	if !ok {
 		concreteInstace = reflect.New(concreteType.regType).Elem()
+		c.singletons[instaceType] = concreteInstace
 	}
 
 	return concreteInstace, concreteType.regType
@@ -78,16 +78,17 @@ func (c *Container) populateFields(concretType reflect.Type, val reflect.Value) 
 
 	for i := 0; i < concretType.NumField(); i++ {
 		fieldInfo := concretType.Field(i)
-
-		concreteInstace, concreteType := c.createInstace(fieldInfo.Type.Elem())
-		//if there is concrete that is register to this interface
-		if concreteType != nil {
-			//get the field value
-			fieldValue := val.Addr().Elem().FieldByName(fieldInfo.Name)
-			c.populateFields(concreteType, concreteInstace)
-			interfaceInstace := reflect.New(fieldInfo.Type.Elem())
-			interfaceInstace.Elem().Set(concreteInstace)
-			fieldValue.Set(interfaceInstace)
+		if fieldInfo.Type.Kind() == reflect.Ptr {
+			concreteInstace, concreteType := c.createInstace(fieldInfo.Type.Elem())
+			//if there is concrete that is register to this interface
+			if concreteType != nil {
+				//get the field value
+				fieldValue := val.Addr().Elem().FieldByName(fieldInfo.Name)
+				c.populateFields(concreteType, concreteInstace)
+				interfaceInstace := reflect.New(fieldInfo.Type.Elem())
+				interfaceInstace.Elem().Set(concreteInstace)
+				fieldValue.Set(interfaceInstace)
+			}
 		}
 
 	}
